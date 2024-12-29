@@ -1,0 +1,3 @@
+Host github.com
+    IdentityFile ~/.ssh/runpod_soterix@github.com_24_12_ed25519
+
