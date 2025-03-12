@@ -1,0 +1,72 @@
+#!/bin/sh
+
+# Constants
+ssh_wd="${HOME}/.ssh"
+ssh_id="${ssh_wd}/runpod_identity"
+runpod_ssh_config="${ssh_wd}/runpod_ssh_config"
+user_ssh_config="${ssh_wd}/config"
+config_backup="${user_ssh_config}_backup"
+
+# Validate pod name
+valid_pod_name() {
+  case "$1" in
+    *[!a-zA-Z0-9_-]* ) return 1 ;;
+    * ) return 0 ;;
+  esac
+}
+
+# Ensure ssh directory exists
+mkdir -p "${ssh_wd}"
+
+# Create user ssh config if missing
+if [ ! -f "${user_ssh_config}" ]; then
+  touch "${user_ssh_config}"
+fi
+
+# Clear or create runpod ssh config
+: > "${runpod_ssh_config}"
+
+# Fetch pods data
+pods_data="$(runpodctl get pod -a | tail -n +2)"
+
+# Process pods data
+echo "${pods_data}" | while read -r line; do
+
+  pod_name=$(echo "$line" | awk '{print $2}')
+  ssh_info=$(echo "$line" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+->22' | head -n1)
+
+  if ! valid_pod_name "${pod_name}"; then
+    echo "Error: Invalid pod name '${pod_name}', skipping." >&2
+    continue
+  fi
+
+  ip=$(echo "$ssh_info" | cut -d':' -f1)
+  port=$(echo "$ssh_info" | cut -d':' -f2 | cut -d'-' -f1)
+
+  {
+    echo "Host ${pod_name}.runpod.io"
+    echo "  HostName ${ip}"
+    echo "  Port ${port}"
+    echo "  User root"
+    echo "  IdentityFile ${ssh_id}"
+    echo
+  } >> "${runpod_ssh_config}"
+
+  echo "${pod_name}.runpod.io [${ip}:${port}]"
+done
+
+# Backup config only if missing
+if [ ! -f "${config_backup}" ]; then
+  cp "${user_ssh_config}" "${config_backup}"
+fi
+
+# Add Include statement if missing
+include_stmt="Include ${runpod_ssh_config}"
+if ! grep -Fxq "${include_stmt}" "${user_ssh_config}"; then
+  tmpfile="$(mktemp)"
+  {
+    echo "${include_stmt}"
+    cat "${user_ssh_config}"
+  } > "${tmpfile}"
+  mv "${tmpfile}" "${user_ssh_config}"
+fi
