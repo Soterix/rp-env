@@ -39,3 +39,24 @@ sh_ensure_rc() {
     echo "$COMMAND" >> "$RC_FILE"
     echo "[sh_ensure_rc] Added '$COMMAND' to $RC_FILE"
 }
+
+sh_rc_source() {
+
+    CURRENT_SHELL=$(basename "$SHELL")
+    echo $CURRENT_SHELL
+    case "$CURRENT_SHELL" in
+        zsh)
+            [ -f "$HOME/.zshrc" ] && . "$HOME/.zshrc"
+            ;;
+        bash)
+            [ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"
+            ;;
+        sh)
+            [ -f "$HOME/.shrc" ] && . "$HOME/.shrc"
+            ;;
+        *)
+            echo "[sh_rc_source] Unsupported shell: $CURRENT_SHELL"
+            return 1
+            ;;
+    esac
+}

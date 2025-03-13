@@ -3,7 +3,8 @@
 [ -n "${__RP_ENV_ALREADY_IMPORTED_POETRY}" ] && return
 __RP_ENV_ALREADY_IMPORTED_POETRY=1
 
-. "$script_dir/actions/sh.sh"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "$SCRIPT_DIR/actions/sh.sh"
 
 poetry_install() {
   POETRY_DIR="$HOME/.poetry"
@@ -57,5 +58,7 @@ poetry_install() {
   fi
 
   sh_ensure_rc "export PATH=\"$POETRY_DIR/bin:\$PATH\""
+
+  echo "[poetry_install] Poetry installed."
 }
 
