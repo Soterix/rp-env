@@ -1,4 +1,7 @@
-#!/bin/sh
+#!/usr/bin/env sh
+
+[ -n "${__RP_ENV_ALREADY_IMPORTED_SSH}" ] && return
+__RP_ENV_ALREADY_IMPORTED_SSH=1
 
 SSH_DIR="$HOME/.ssh"
 

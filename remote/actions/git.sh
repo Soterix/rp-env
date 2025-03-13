@@ -1,4 +1,7 @@
-#!/bin/sh
+#!/usr/bin/env sh
+
+[ -n "${__RP_ENV_ALREADY_IMPORTED_GIT}" ] && return
+__RP_ENV_ALREADY_IMPORTED_GIT=1
 
 git_init() {
     if [ "$#" -ne 2 ]; then

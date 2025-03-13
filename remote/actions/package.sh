@@ -1,6 +1,9 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
-pacakge_update() {
+[ -n "${__RP_ENV_ALREADY_IMPORTED_PACKAGE}" ] && return
+__RP_ENV_ALREADY_IMPORTED_PACKAGE=1
+
+package_update() {
     apt-get update
 }
 
