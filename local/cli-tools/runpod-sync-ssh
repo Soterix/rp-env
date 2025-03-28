@@ -43,6 +43,11 @@ echo "${pods_data}" | while read -r line; do
   ip=$(echo "$ssh_info" | cut -d':' -f1)
   port=$(echo "$ssh_info" | cut -d':' -f2 | cut -d'-' -f1)
 
+  if [ -z "$ip" ]; then
+    echo "Error: Pod '${pod_name}' has no IP, skipping...." >&2
+    continue
+  fi
+
   {
     echo "Host ${pod_name}.runpod.io"
     echo "  HostName ${ip}"

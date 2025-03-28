@@ -8,9 +8,10 @@ runpod_fix_bashrc() {
     TARGET_FILE="$HOME/.bashrc"
 
     # Check if the file exists
-    if [[ -f "$TARGET_FILE" ]]; then
+    if [ -f "$TARGET_FILE" ]; then
         # Use sed to remove lines like "source /etc/rp_environment" only if they are at the end of the file
         sed -i ':a;N;$!ba;s/\(source \/etc\/rp_environment\)\n*$//g' "$TARGET_FILE"
+        echo "[runpod_fix_bashrc] Duplicated "/etc/rp_environment" removed from $TARGET_FILE"
     else
         echo "[runpod_fix_bashrc] File ${TARGET_FILE} does not exist."
     fi

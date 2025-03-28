@@ -67,3 +67,33 @@ ssh_config() {
 
   echo "[ssh_config] SSH configuration: ${SSH_DIR}/configs/${filename}"
 }
+
+ssh_host() {
+    # Check if the host parameter is provided
+    if [ -z "$1" ]; then
+        echo "[ssh_host]: Usage: ssh_host <host>"
+        return 1
+    fi
+
+    local host="$1"
+    local known_hosts_file="$HOME/.ssh/known_hosts"
+
+    # Create the known_hosts file if it does not exist
+    if [ ! -f "$known_hosts_file" ]; then
+        touch "$known_hosts_file"
+    fi
+
+    # Check if the host's fingerprint is already in the known_hosts file
+    if grep -q -F "$host" "$known_hosts_file"; then
+        echo "[ssh_host]: SSH fingerprint for $host is already added."
+    else
+        # Retrieve the public key from the host and add it to the known_hosts file
+        ssh-keyscan -H "$host" >> "$known_hosts_file" 2>/dev/null
+        if [ $? -eq 0 ]; then
+            echo "[ssh_host]: SSH fingerprint for $host added successfully."
+        else
+            echo "[ssh_host]: Failed to retrieve SSH fingerprint for $host."
+            return 1
+        fi
+    fi
+}

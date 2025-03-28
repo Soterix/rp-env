@@ -3,8 +3,7 @@
 [ -n "${__RP_ENV_ALREADY_IMPORTED_POETRY}" ] && return
 __RP_ENV_ALREADY_IMPORTED_POETRY=1
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-. "$SCRIPT_DIR/actions/sh.sh"
+. "${RP_ENV_ACTIONS}/sh.sh"
 
 poetry_install() {
   POETRY_DIR="$HOME/.poetry"

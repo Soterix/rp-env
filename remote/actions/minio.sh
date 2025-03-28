@@ -1,10 +1,9 @@
-#!/usr/MINIO_BIN/env sh
+#!/usr/bin/env sh
 
 [ -n "${__RP_ENV_ALREADY_IMPORTED_MINIO}" ] && return
 __RP_ENV_ALREADY_IMPORTED_MINIO=1
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-. "$SCRIPT_DIR/actions/sh.sh"
+. "${RP_ENV_ACTIONS}/sh.sh"
 
 minio_install() {
     
@@ -48,4 +47,24 @@ minio_install() {
     sh_ensure_rc "export PATH=\"${MINIO_DIR}:\$PATH\""
 
     echo "[minio_install] Minio installed."
+}
+
+minio_alias_env() {
+
+    env | grep '^RUNPOD_MINIO_' | while IFS='=' read -r envname value; do
+
+        host=$(echo "$value" | cut -d ';' -f1)
+        access_key_var=$(echo "$value" | cut -d ';' -f2)
+        secret_key_var=$(echo "$value" | cut -d ';' -f3)
+
+
+        access_key=$(printenv "$access_key_var")
+        secret_key=$(printenv "$secret_key_var")
+
+        if [ -n "$host" ] && [ -n "$access_key" ] && [ -n "$secret_key" ]; then
+            alias_name=$(echo "$envname" | sed 's/^RUNPOD_MINIO_//' | tr '[:upper:]' '[:lower:]')
+            echo "[minio_alias_env] Adding alias $alias_name for $host from $envname"
+            mc alias set "$alias_name" "$host" "$access_key" "$secret_key"
+        fi
+    done
 }
